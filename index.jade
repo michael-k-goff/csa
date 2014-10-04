@@ -1,27 +1,15 @@
 doctype html
 html
 	body
-		if user
-			h1 Welcome !{user}.
-			p You have #{orders.length} orders
-			each order in orders
-				p #{order}
-		if !user
-			b Log in
-			form(name="input", action="/login", method="POST")
-				| Username
-				input(type="text", name="username")
-				| Password
-				input(type="text", name="password")
-				input(type="submit", value="Submit")
+		form(name="orderform",action="/placeorder",method="POST")
+			| First Name
+			input(type="text", name="firstname")
+			| Last Name
+			input(type="text",name="lastname")
 			br
-			b Register
-			form(name="input", action="/register", method="POST")
-				| Username
-				input(type="text", name="username")
-				| Password
-				input(type="text", name="password")
-				input(type="submit", value="Submit")
-		if user
-			form(name="input", action="/logout", method="POST")
-				input(type="submit", value="Logout")
+			| Share Type
+			br
+			input(type="checkbox",name="share",value="Vegetable")
+			| Vegetable Share
+			br
+			input(type="submit",value="Place Order")

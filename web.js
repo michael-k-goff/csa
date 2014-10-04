@@ -74,6 +74,12 @@ app.get('/', function(request, response) {
 					  user:request.user}));
 });
 
+app.get('/vieworders', function(request,response) {
+	orders.find().toArray(function(err,items) {
+		response.send(JSON.stringify(items));
+	});
+});
+
 app.post('/login', passport.authenticate('local', { failureRedirect: '/', failureFlash: true }), function(req, res) {
 	res.redirect('/');
 //	res.send("Logged in<br><a href='/'>Home</a>");
@@ -84,6 +90,13 @@ app.post('/register', function(req, res) {
 	res.redirect('/');
 });
 app.post('/logout', function(request,response) {request.logout(); response.redirect('/');})
+
+app.post('/placeorder', function(request,response) {
+	var order = {firstname: request.body.firstname, lastname: request.body.lastname, share: request.body.share};
+	// var order = request.body;
+	orders.insert(order, {w:1}, function(err,response) {})
+	response.send("<b>Order Placed</b>");
+});
 
 var port = process.env.PORT || 8080;
 app.listen(port, function() {
