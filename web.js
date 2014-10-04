@@ -93,8 +93,8 @@ app.post('/logout', function(request,response) {request.logout(); response.redir
 
 app.post('/placeorder', function(request,response) {
 	var order = {firstname: request.body.firstname, lastname: request.body.lastname, share: request.body.share};
-	// var order = request.body;
-	orders.insert(order, {w:1}, function(err,response) {})
+	console.log(request.body);
+//	orders.insert(order, {w:1}, function(err,response) {})
 	response.send("<b>Order Placed</b>");
 });
 
