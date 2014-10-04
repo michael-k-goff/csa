@@ -1,7 +1,39 @@
 doctype html
 html
+	head
+		script.
+			function validateEmail() {
+			    var email = document.forms["orderform"]["email"].value;
+			    var atpos = email.indexOf("@");
+			    var dotpos = email.lastIndexOf(".");
+			    if (atpos< 1 || dotpos<atpos+2 || dotpos+2>=email.length) {
+			        return false;
+			    }
+				return true;
+			}
+			function validateForm() {
+				var firstname = document.forms["orderform"]["firstname"].value;
+				if (firstname == null || firstname == "") {
+					alert("First name must be filled out");
+					return false;
+				}
+				var lastname = document.forms["orderform"]["lastname"].value;
+				if (lastname == null || lastname == "") {
+					alert("Last name must be filled out");
+					return false;
+				}
+				var phone = document.forms["orderform"]["phone"].value;
+				if (phone == null || phone == "") {
+					alert("Phone number must be filled out");
+					return false;
+				}
+				if (!validateEmail()) {
+					alert("Not a valid e-mail address");
+					return false;
+				}
+			}
 	body
-		form(name="orderform",action="/placeorder",method="POST")
+		form(name="orderform",action="/placeorder",onsubmit="return validateForm()",method="POST")
 			| First Name
 			input(type="text", name="firstname")
 			| Last Name
