@@ -34,8 +34,9 @@ MongoClient.connect("mongodb://localhost:27017/csa", function(err, db) {
 var test_usernames = ["alice","bob","charlie"];
 var test_passwords = ["12345","qwerty","asdf"];
 
-// Set up the index page
+// Compile the jade templates
 var fn = jade.compile(fs.readFileSync("index.jade"));
+var adminfn = jade.compile(fs.readFileSync("admin.jade"));
 
 var app = express();
 
@@ -69,9 +70,12 @@ passport.use(new LocalStrategy(
 	}
 ));
 
-app.get('/', function(request, response) {
-	response.send(fn({orders: ['a','b','c'],
-					  user:request.user}));
+app.get('/', function(request, response) { // The main page
+	response.send(fn({user:request.user}));
+});
+
+app.get('/admin', function(request,response) { // Main page for the admin panel
+	response.send(adminfn({user:request.user}));
 });
 
 app.get('/vieworders', function(request,response) {
@@ -81,17 +85,18 @@ app.get('/vieworders', function(request,response) {
 });
 
 app.post('/login', passport.authenticate('local', { failureRedirect: '/', failureFlash: true }), function(req, res) {
-	res.redirect('/');
-//	res.send("Logged in<br><a href='/'>Home</a>");
+	res.redirect('/admin');
 });
+
 app.post('/register', function(req, res) {
 	var new_user = {'username':req.body.username, 'password':req.body.password};
 	users.insert(new_user, {w:1},function(err,result) {});
 	res.redirect('/');
 });
+
 app.post('/logout', function(request,response) {request.logout(); response.redirect('/');})
 
-app.post('/placeorder', function(request,response) {
+app.post('/placeorder', function(request,response) { // Need to be fixed
 	var order = {firstname: request.body.firstname, lastname: request.body.lastname, share: request.body.share};
 	console.log(request.body);
 //	orders.insert(order, {w:1}, function(err,response) {})
