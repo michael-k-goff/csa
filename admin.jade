@@ -4,6 +4,11 @@ html
 	body
 		if user
 			h1 Welcome !{user}.
+			a(href="/vieworders") View Orders
+			br
+			a(href="/editinfo") Edit CSA Information
+			br
+			a(href="/") Home
 		if !user
 			| Please log in
 			br

@@ -1,0 +1,31 @@
+doctype html
+html
+	head
+	body
+		if user
+			h1 Welcome !{user}.
+			table(border='1')
+				tr
+					td Name
+					td Email
+					td Phone
+					td Order
+				each order in orders
+					tr
+						td
+							| !{order.firstname} !{order.lastname}
+						td !{order.email}
+						td !{order.phone}
+						td !{order.text}
+						td
+							form(action='deleteorder', method='post', style='display:inline')
+								<input type='hidden', name='id', value='#{order._id}'>
+								input(type='submit', value='Delete')
+			br
+			a(href="/clearorders") Clear Orders (click only if you really mean it!)
+			br
+			a(href="/admin") Back to Admin Panel
+		if !user
+			| Please log in
+			br
+			a(href="/") Home

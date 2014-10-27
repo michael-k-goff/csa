@@ -1,0 +1,52 @@
+doctype html
+html
+	head
+	body
+		if user
+			h1 Welcome !{user}.
+			- var i = 0
+			each prod in csa_info.Products
+				form(name="input", action="/update_product", method="POST")
+					| Name
+					<input type="text" name="name" value="!{prod.name}">
+					| Price
+					<input type="text" name="price" value="!{prod.price}">
+					| Administrative Fee
+					<input type="text" name="admin_fee" value="!{prod.admin_fee}">
+					| Max Number Per Order
+					<input type="text" name="max_num" value="!{prod.max_num}">
+					br
+					| Description
+					<textarea name="desc" cols="40" rows="5">!{prod.desc}</textarea>
+					<input type='hidden', name='product_num', value='#{i}'>
+					br
+					input(type="submit", value="Update")
+				form(name="input", action="/delete_product", method="POST")
+					<input type='hidden', name='product_num', value='#{i}'>
+					input(type="submit", value="Delete")
+				br
+				br
+				- i = i + 1
+			br
+			b Add New Product
+			br
+			form(name="input", action="/new_product", method="POST")
+				| Name
+				input(type="text", name="name")
+				| Price
+				input(type="text", name="price")
+				| Administrative Fee
+				input(type="text", name="admin_fee")
+				| Maximum Number in an Order
+				input(type="text", name="max_num")
+				br
+				| Description
+				textarea(name="desc" cols="40" rows="5")
+				br
+				input(type="submit", value="Add!")
+			br
+			a(href='/admin') Back to Admin Panel
+		if !user
+			| Please log in
+			br
+			a(href="/") Home

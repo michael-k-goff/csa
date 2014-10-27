@@ -48,39 +48,14 @@ html
 			input(type="text",name="phone")
 			| Share Type
 			br
-			select(name="root")
-				option(value="0")
-					| 0
-				option(value="1")
-					| 1
-			| Root Vegetable Share
 			br
-			select(name="frozen")
-				option(value="0")
-					| 0
-				option(value="1")
-					| 1
-				option(value="2")
-					| 2
-			| Frozen Vegetable Share
-			br
-			select(name="apple")
-				option(value="0")
-					| 0
-				option(value="1")
-					| 1
-				option(value="2")
-					| 2
-			| Apple Share
-			br
-			select(name="cider")
-				option(value="0")
-					| 0
-				option(value="1")
-					| 1
-				option(value="2")
-					| 2
-			| Cider Share
+			each product in info.Products
+				select(name=product.name)
+					- var max = parseInt(product.max_num)+1
+					- for (var i=0; i<max; i++)
+						option(value=i) !{i}
+				| !{product.name}
+				br
 			br
 			input(type="submit",value="Place Order")
 		br
