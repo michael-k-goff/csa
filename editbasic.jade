@@ -1,0 +1,22 @@
+doctype html
+html
+	head
+	body
+		if user
+			h1 Welcome !{user}.
+			form(name="input", action="/update_basic", method="POST")
+				| Title
+				<input type='text', name='title', value='!{csa_info.Title}'>
+				br
+				| Description
+				br
+				<textarea name="desc" cols="40" rows="5">!{csa_info.Description}</textarea>
+				br
+				input(type="submit", value="Update")
+			br
+			br
+			a(href='/admin') Back to Admin Panel
+		if !user
+			| Please log in
+			br
+			a(href="/") Home

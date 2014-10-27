@@ -2,12 +2,53 @@
 // this is my comment
 
 /* To-do:
-- Add timestamps to orders
-- When displaying orders, sort them by timestamp
-- Generate the order page using stored product information
-- Add share agreement information and basic CSA information to the order page
-- Require that the user check the share agreement boxes to place an order
-- On the product admin page, allow the terms of the share agreement and basic CSA information to be editted
+Timestamps:
+	- Add timestamps to orders
+	- When displaying orders, show the timestamp and sort them by timestamp
+
+Security:
+As set up now, this app has major security holes which a hacker can easily exploit.
+
+One is an HTML injection attack.  As it is now, when a user enters a name, the name is
+rendered on the admin page exactly as it is typed in.  Rather than typing a real name,
+a hacker could type in malicious HTML which could steal the admin's personal information
+or worse.
+
+There are at least two ways to defend from this.  First, depending on the jade code used,
+angle brackets are not rendered literally as <> but as &lt; and &gt;.  This prevents
+HTML from being rendered as such on the client's page.
+
+A second option is server-side validation of the input.  Make sure, for instance, that
+only letters are used for names and only 1234567890()- are used for phone numbers.
+Regular expressions could be helpful here.
+
+(Quiz: why must this validation be done server-side and not client side?)
+
+A second major security hole is admin spoofing.  As it is now, the admin pages only check
+that the HTTP request has a user defined, not whether the user is valid.  Many of the admin
+functions, such as /deleteorder, don't even check is there is a user, assuming that the
+request comes from a valid source.  However, a hacker can generate his/her own POST request
+without it coming from a browser and thereby invoke these admin functions without any
+log-in credentials.
+
+	- Server-side validation of input to guard against HTML injection
+	- Does the jade code, as it is written now, guard against HTML injection?  If not, then it should.
+	- All admin-specific GET and POST requests should check if request.user exists and it in the database
+	- As it is now, anyone can create an admin account from the registration page.  This is fine for testing
+		but obviously needs to be changed before deployment.
+	- Think about what other security holes might exist.
+
+User Interface
+	- Introduce Bootstrap and otherwise make the site look like it was created after 1993.
+	- For a customer, add order information to the confirmation page
+	- Auto-generate an e-mail to users after filling out an order with the details listed.
+	- For admin functions, give the user some feedback after filling out a form, so he/she knows something happened.
+		One option is a confirmation page like what a customer gets.
+	- As it is now for the production information and share agreement pages, items are added/edited/deleted one at a time.
+		Think about whether this is the best way to do it.  One idea is to use XLMHTTPRequests
+		(An XMLHTTPRequest is a tool for a client to communicate with a server without reloading a webpage.
+		It is an essential tool for any web developer.)
+	- Better organize all the admin functions
 */
 
 var express = require('express');
@@ -55,6 +96,8 @@ var fn = jade.compile(fs.readFileSync("index.jade"));
 var adminfn = jade.compile(fs.readFileSync("admin.jade"));
 var vofn = jade.compile(fs.readFileSync("vieworders.jade"));
 var editfn = jade.compile(fs.readFileSync("editinfo.jade"));
+var agfn = jade.compile(fs.readFileSync("agreement.jade"));
+var basicfn = jade.compile(fs.readFileSync("editbasic.jade"));
 
 var app = express();
 
@@ -154,6 +197,39 @@ app.post('/delete_product', function(request, response) { // Delete a product fr
 	});
 });
 
+app.get('/edit_agreement', function(request,response) { // An admin panel function: update the terms of the CSA agreement
+	response.send(agfn({user:request.user, csa_info: csa_info}));
+});
+
+app.post('/update_agreement', function(request,response) { // Update an existing agreement term from the admin panel
+	var num = request.body.term_num;
+	csa_info.Agreements[num] = request.body.desc;
+	info_object.remove({}, function(err) {
+		info_object.insert(csa_info, {w:1}, function(err,result) {
+			response.redirect('/edit_agreement');
+		});
+	});
+});
+
+app.post('/delete_term', function(request, response) { // Delete a product from the admin panel
+	var num = request.body.term_num;
+	csa_info.Agreements.splice(num,1);
+	info_object.remove({}, function(err) {
+		info_object.insert(csa_info, {w:1}, function(err,result) {
+			response.redirect('/edit_agreement');
+		});
+	});
+});
+
+app.post('/new_term', function(request,response) { // Add a new product from the admin panel
+	csa_info.Agreements.push(request.body.desc);
+	info_object.remove({}, function(err) {
+		info_object.insert(csa_info, {w:1}, function(err,result) {
+			response.redirect('/edit_agreement');
+		});
+	});
+});
+
 app.post('/deleteorder',function(request,response) { // Delete a single order from the system
 	console.log("Removing order with id " + request.body.id);
 	orders.remove({"_id":new mongodb.ObjectID(request.body.id)},function(err) {
@@ -194,6 +270,20 @@ app.post('/placeorder', function(request,response) { // This request is invoked 
 	orders.insert(order, {w:1}, function(err,res) {
 		response.send("<b>Order Placed</b><br><a href='/'>Home</a>"); // A minimal order confirmation page
 	})
+});
+
+app.get('/edit_basic', function(request,response) {	// Admin panel function to edit basic information about the CSA (title, description)
+	response.send(basicfn({user:request.user, csa_info: csa_info}));
+});
+
+app.post('/update_basic', function(request,response) {
+	csa_info.Title = request.body.title;
+	csa_info.Description = request.body.desc;
+	info_object.remove({}, function(err) {
+		info_object.insert(csa_info, {w:1}, function(err,result) {
+			response.redirect('/edit_basic');
+		});
+	});
 });
 
 // Fire the app up

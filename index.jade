@@ -31,10 +31,20 @@ html
 					alert("Not a valid e-mail address");
 					return false;
 				}
+				for (var i=0; i<document.forms["orderform"]["agreement"].length; i++) {
+					if (!(document.forms["orderform"]["agreement"][i].checked)) {
+						alert("Please check all terms of the agreement");
+						return false;
+					}
+				}
 			}
 	body
+		h1 !{info.Title}
 		if user
-			h1 Welcome !{user}.
+			h2 Welcome !{user}.
+		| !{info.Description}
+		br
+		br
 		form(name="orderform",action="/placeorder",onsubmit="return validateForm()",method="POST")
 			| First Name
 			input(type="text", name="firstname")
@@ -46,7 +56,6 @@ html
 			br
 			| Phone Number
 			input(type="text",name="phone")
-			| Share Type
 			br
 			br
 			each product in info.Products
@@ -57,7 +66,18 @@ html
 				| !{product.name}
 				br
 			br
+			- var i = 0
+			each ag in info.Agreements
+				<input type="checkbox" name="agreement" value="term!{i}">
+				!{ag}
+				br
+				- i = i + 1
+			br
 			input(type="submit",value="Place Order")
+		br
+		br
+		br
+		br
 		br
 		if !user
 			b Log in

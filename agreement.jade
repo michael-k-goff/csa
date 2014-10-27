@@ -1,0 +1,35 @@
+doctype html
+html
+	head
+	body
+		if user
+			h1 Welcome !{user}.
+			- var i = 0
+			each ag in csa_info.Agreements
+				form(name="input", action="/update_agreement", method="POST")
+					| Term !{i+1}
+					br
+					<textarea name="desc" cols="40" rows="5">!{ag}</textarea>
+					<input type='hidden', name='term_num', value='#{i}'>
+					br
+					input(type="submit", value="Update")
+				form(name="input", action="/delete_term", method="POST")
+					<input type='hidden', name='term_num', value='#{i}'>
+					input(type="submit", value="Remove This Term")
+				br
+				br
+				- i = i + 1
+			br
+			b Add New Term
+			br
+			form(name="input", action="/new_term", method="POST")
+				| New Term
+				textarea(name="desc" cols="40" rows="5")
+				br
+				input(type="submit", value="Add New Term")
+			br
+			a(href='/admin') Back to Admin Panel
+		if !user
+			| Please log in
+			br
+			a(href="/") Home
